@@ -1,0 +1,6 @@
+uvicorn[standard]==0.20.0
+gunicorn==20.1.0
+fastapi[all]==0.88.0
+redis[hiredis]==3.5.3
+mysql-connector-python==8.0.27
+influxdb==5.3.1
