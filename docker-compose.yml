@@ -1,0 +1,74 @@
+version: "3"
+
+services:
+  fastapi:
+    container_name: fastapi
+    build:
+      context: .
+      dockerfile: ./fastapi/Dockerfile
+    ports:
+      - "80:80"
+    env_file:
+      - ./envs/MySQL.env
+      - ./envs/Redis.env
+    networks:
+      - my_network
+    depends_on:
+      - mysql
+      - redis
+
+  nodejs:
+    container_name: nodejs
+    build: ./app
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./envs/MySQL.env
+      - ./envs/Redis.env
+    environment:
+      - PORT=3000
+    networks:
+      - my_network
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./envs/MySQL.env
+    networks:
+      - my_network
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    env_file:
+      - ./envs/Redis.env
+    networks:
+      - my_network
+    volumes:
+      - ./redis:/data
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:8.2.6
+    ports:
+      - "3030:3000"
+    env_file:
+      - ./envs/MySQL.env
+    networks:
+      - my_network
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+
+networks:
+  my_network:
