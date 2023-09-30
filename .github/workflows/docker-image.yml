@@ -1,0 +1,29 @@
+name: Docker Compose CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build and run with Docker Compose
+      run: |
+        docker-compose build
+        docker-compose up -d
+    - name: Check for errors
+      run: |
+        docker-compose logs
+        if docker ps -a | grep -q 'Exited'; then
+          echo "An error occurred. One or more containers exited prematurely."
+          exit 1
+        fi
+    - name: Cleanup
+      run: docker-compose down
